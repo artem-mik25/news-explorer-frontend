@@ -39,4 +39,4 @@ npm run build
 
 ## Live site
 
-Deployed at: https://artemmik25.github.io/news-explorer-frontend/
+Deployed at: https://artem-mik25.github.io/news-explorer-frontend/
