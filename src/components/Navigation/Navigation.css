@@ -1,0 +1,156 @@
+.navigation__list {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  height: 100%;
+}
+
+.navigation__link {
+  display: inline-flex;
+  align-items: center;
+  height: 80px;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+}
+
+.navigation_theme_dark .navigation__link {
+  color: #fff;
+}
+
+.navigation_theme_light .navigation__link {
+  color: #1a1b22;
+}
+
+.navigation_theme_dark .navigation__link_active {
+  border-bottom-color: #fff;
+}
+
+.navigation_theme_light .navigation__link_active {
+  border-bottom-color: #1a1b22;
+}
+
+.navigation__button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 112px;
+  max-width: 200px;
+  height: 48px;
+  padding: 0 19px;
+  justify-content: center;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  transition: opacity 0.2s ease;
+}
+
+.navigation__button:hover {
+  opacity: 0.8;
+}
+
+.navigation_theme_dark .navigation__button {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.navigation_theme_light .navigation__button {
+  border: 1px solid #d1d2d6;
+  color: #1a1b22;
+}
+
+.navigation__button_type_signin {
+  min-width: 176px;
+}
+
+.navigation_theme_dark .navigation__button_type_signin {
+  background-color: #2f71e5;
+}
+
+.navigation__button-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navigation__logout-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.navigation__logout-icon_theme_dark {
+  background-image: url("../../images/logout-white.svg");
+}
+
+.navigation__logout-icon_theme_light {
+  background-image: url("../../images/logout-dark.svg");
+}
+
+@media screen and (max-width: 1279px) {
+  .navigation__link {
+    font-size: 16px;
+    height: 66px;
+  }
+
+  .navigation__button {
+    height: 40px;
+    min-width: 152px;
+    font-size: 16px;
+  }
+
+  .navigation__button_type_signin {
+    min-width: 152px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .navigation {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    padding: 16px 16px 24px;
+    z-index: 20;
+  }
+
+  .navigation_opened {
+    display: block;
+  }
+
+  .navigation_theme_dark.navigation_opened {
+    background-color: #1a1b22;
+  }
+
+  .navigation_theme_light.navigation_opened {
+    background-color: #fff;
+    border-bottom: 1px solid #d1d2d6;
+  }
+
+  .navigation__list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+  }
+
+  .navigation__link {
+    height: auto;
+    border: none;
+    font-size: 18px;
+  }
+
+  .navigation__button {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: 56px;
+    font-size: 18px;
+  }
+}
