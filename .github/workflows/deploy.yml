@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, stage-1-frontend-and-api]
+    branches: [main, stage-1-frontend-and-api, stage-3-authorization]
   workflow_dispatch:
 
 permissions:

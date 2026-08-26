@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm.jsx";
 
-function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegister }) {
+function LoginModal({ isOpen, onClose, onLogin, serverError, onSwitchToRegister }) {
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(false);
@@ -34,6 +34,7 @@ function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegister }) {
       title="Sign in"
       submitText="Sign in"
       isSubmitDisabled={!isValid}
+      serverError={serverError}
       altAction={{ text: "Sign up", onClick: onSwitchToRegister }}
     >
       <label className="modal__label" htmlFor="login-email">

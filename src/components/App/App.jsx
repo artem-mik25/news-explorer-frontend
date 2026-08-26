@@ -11,12 +11,7 @@ import SuccessModal from "../SuccessModal/SuccessModal.jsx";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute.jsx";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import { getNews } from "../../utils/NewsApi";
-import * as auth from "../../utils/auth";
-import {
-  getSavedArticles,
-  saveArticle,
-  deleteArticle,
-} from "../../utils/savedArticles";
+import * as mainApi from "../../utils/MainApi";
 import { CARDS_PER_PAGE } from "../../utils/constants";
 import "./App.css";
 
@@ -25,6 +20,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [activeModal, setActiveModal] = useState("");
+  const [authError, setAuthError] = useState("");
   const [articles, setArticles] = useState([]);
   const [savedArticles, setSavedArticles] = useState([]);
   const [keyword, setKeyword] = useState("");
@@ -40,8 +36,8 @@ function App() {
       setIsAuthChecked(true);
       return;
     }
-    auth
-      .checkToken(token)
+    mainApi
+      .getUserInfo(token)
       .then((user) => {
         setCurrentUser(user);
         setIsLoggedIn(true);
@@ -55,10 +51,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    getSavedArticles()
+    if (!isLoggedIn) {
+      return;
+    }
+    const token = localStorage.getItem("jwt");
+    mainApi
+      .getSavedArticles(token)
       .then(setSavedArticles)
       .catch((err) => console.error(err));
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const lastSearch = JSON.parse(localStorage.getItem("lastSearch"));
@@ -69,7 +70,15 @@ function App() {
     }
   }, []);
 
-  const closeModal = useCallback(() => setActiveModal(""), []);
+  const closeModal = useCallback(() => {
+    setActiveModal("");
+    setAuthError("");
+  }, []);
+
+  function openModal(name) {
+    setAuthError("");
+    setActiveModal(name);
+  }
 
   function handleSearch(searchKeyword) {
     setSearchStatus("loading");
@@ -94,30 +103,35 @@ function App() {
   }
 
   function handleRegister({ email, password, name }) {
-    auth
+    mainApi
       .register(email, password, name)
       .then(() => {
         setActiveModal("success");
+        setAuthError("");
       })
-      .catch((err) => console.error(err));
+      .catch((err) => setAuthError(err.message));
   }
 
   function handleLogin({ email, password }) {
-    auth
+    mainApi
       .authorize(email, password)
-      .then(({ token, user }) => {
+      .then(({ token }) => {
         localStorage.setItem("jwt", token);
+        return mainApi.getUserInfo(token);
+      })
+      .then((user) => {
         setCurrentUser(user);
         setIsLoggedIn(true);
         closeModal();
       })
-      .catch((err) => console.error(err));
+      .catch((err) => setAuthError(err.message));
   }
 
   function handleLogout() {
     localStorage.removeItem("jwt");
     setCurrentUser(null);
     setIsLoggedIn(false);
+    setSavedArticles([]);
     navigate("/");
   }
 
@@ -127,15 +141,17 @@ function App() {
 
   function handleSaveClick(article) {
     if (!isLoggedIn) {
-      setActiveModal("register");
+      openModal("register");
       return;
     }
+    const token = localStorage.getItem("jwt");
     const savedArticle = findSavedArticle(article);
     if (savedArticle) {
       handleDeleteArticle(savedArticle);
       return;
     }
-    saveArticle(article, keyword)
+    mainApi
+      .saveArticle(article, keyword, token)
       .then((newArticle) => {
         setSavedArticles([newArticle, ...savedArticles]);
       })
@@ -143,7 +159,9 @@ function App() {
   }
 
   function handleDeleteArticle(article) {
-    deleteArticle(article._id)
+    const token = localStorage.getItem("jwt");
+    mainApi
+      .deleteArticle(article._id, token)
       .then(() => {
         setSavedArticles(
           savedArticles.filter((saved) => saved._id !== article._id)
@@ -159,7 +177,7 @@ function App() {
           <Header
             isLoggedIn={isLoggedIn}
             isMainPage={isMainPage}
-            onSignInClick={() => setActiveModal("login")}
+            onSignInClick={() => openModal("login")}
             onLogout={handleLogout}
           />
           {isMainPage && (
@@ -209,18 +227,20 @@ function App() {
           isOpen={activeModal === "login"}
           onClose={closeModal}
           onLogin={handleLogin}
-          onSwitchToRegister={() => setActiveModal("register")}
+          serverError={authError}
+          onSwitchToRegister={() => openModal("register")}
         />
         <RegisterModal
           isOpen={activeModal === "register"}
           onClose={closeModal}
           onRegister={handleRegister}
-          onSwitchToLogin={() => setActiveModal("login")}
+          serverError={authError}
+          onSwitchToLogin={() => openModal("login")}
         />
         <SuccessModal
           isOpen={activeModal === "success"}
           onClose={closeModal}
-          onSignInClick={() => setActiveModal("login")}
+          onSignInClick={() => openModal("login")}
         />
       </div>
     </CurrentUserContext.Provider>
